@@ -1,0 +1,48 @@
+server
+├── src
+│   ├── main
+│   │   ├── java
+│   │   │   └── com
+│   │   │       └── kyriewang
+│   │   │           └── kkbbs
+│   │   │               ├── KkbbsApplication.java
+│   │   │               ├── controller
+│   │   │               │   ├── LoginController.java
+│   │   │               │   ├── ProfileController.java
+│   │   │               │   ├── PublishController.java
+│   │   │               │   └── QuestionController.java
+│   │   │               ├── dto
+│   │   │               │   ├── NotificationDto.java
+│   │   │               │   └── QuestionDto.java
+│   │   │               ├── entity
+│   │   │               │   ├── Notification.java
+│   │   │               │   ├── Question.java
+│   │   │               │   └── User.java
+│   │   │               ├── mapper
+│   │   │               │   ├── NotificationMapper.java
+│   │   │               │   ├── QuestionMapper.java
+│   │   │               │   └── UserMapper.java
+│   │   │               ├── service
+│   │   │               │   ├── NotificationService.java
+│   │   │               │   ├── QuestionService.java
+│   │   │               │   └── UserService.java
+│   │   │               ├── service.impl
+│   │   │               │   ├── NotificationServiceImpl.java
+│   │   │               │   ├── QuestionServiceImpl.java
+│   │   │               │   └── UserServiceImpl.java
+│   │   │               └── util
+│   │   │                   └── Result.java
+│   │   └── resources
+│   │       ├── application.properties
+│   │       └── mapper
+│   │           ├── NotificationMapper.xml
+│   │           ├── QuestionMapper.xml
+│   │           └── UserMapper.xml
+│   └── test
+│       └── java
+│           └── com
+│               └── kyriewang
+│                   └── kkbbs
+│                       └── KkbbsApplicationTests.java
+└── pom.xml
+    

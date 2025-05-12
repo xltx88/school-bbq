@@ -1,0 +1,28 @@
+<!--<?xml version="1.0" encoding="UTF-8" ?>-->
+<!--<!DOCTYPE mapper-->
+<!--        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"-->
+<!--        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">-->
+<!--<mapper namespace="com.kyriewang.kkbbs.mapper.QuestionMapper">-->
+<!--    <select id="findQuestionsByUserId" resultType="com.kyriewang.kkbbs.entity.Question">-->
+<!--        SELECT * FROM question WHERE creator = #{userId} LIMIT #{offset}, #{limit}-->
+<!--    </select>-->
+<!--    <select id="countQuestionsByUserId" parameterType="Long" resultType="int">-->
+<!--        SELECT COUNT(*) FROM question WHERE creator = #{userId}-->
+<!--    </select>-->
+<!--    <select id="findById" parameterType="Long" resultType="com.kyriewang.kkbbs.entity.Question">-->
+<!--        SELECT * FROM question WHERE id = #{id}-->
+<!--    </select>-->
+<!--    <insert id="insert" parameterType="com.kyriewang.kkbbs.entity.Question">-->
+<!--        INSERT INTO question (title, description, tag, creator, gmt_create, gmt_modified)-->
+<!--        VALUES (#{title}, #{description}, #{tag}, #{creator}, #{gmtCreate}, #{gmtModified})-->
+<!--    </insert>-->
+<!--    <update id="update" parameterType="com.kyriewang.kkbbs.entity.Question">-->
+<!--        UPDATE question-->
+<!--        SET title = #{title}, description = #{description}, tag = #{tag}, gmt_modified = #{gmtModified}-->
+<!--        WHERE id = #{id}-->
+<!--    </update>-->
+<!--    <delete id="deleteById" parameterType="Long">-->
+<!--        DELETE FROM question WHERE id = #{id}-->
+<!--    </delete>-->
+<!--</mapper>-->
+<!-- -->
