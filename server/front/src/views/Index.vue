@@ -158,11 +158,26 @@ export default {
         this.questions = res.data
         console.log(this.questions);
         
+        // 确保时间格式化正确处理
         for (const question of _this.questions) {
-          question.gmt_create = _this.$moment(question.gmt_create).format('YYYY-MM-DD')
+          if (question.gmt_create) {
+            // 兼容字符串和数字类型的时间戳
+            const timestamp = Number(question.gmt_create)
+            if (!isNaN(timestamp) && timestamp > 0) {
+              question.gmt_create = _this.$moment(timestamp).format('YYYY-MM-DD')
+            } else {
+              question.gmt_create = '未知时间'
+            }
+          } else {
+            question.gmt_create = '未知时间'
+          }
         }
-        _this.currentPage = res.data.data.currentPage
-        _this.total = res.data.data.totalPages*_this.pageSize
+        
+        // 处理分页信息
+        if(res.data && res.data.data) {
+          _this.currentPage = res.data.data.currentPage || 1
+          _this.total = (res.data.data.totalPages || 1) * _this.pageSize
+        }
       })
       this.$axios.get("/hottags").then((res) => {
         _this.hots = res.data.data

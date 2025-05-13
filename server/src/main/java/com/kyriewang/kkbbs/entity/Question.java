@@ -9,8 +9,8 @@ public class Question implements Serializable {
     private String description;
     private String tag;
     private Long creator;
-    private Date gmtCreate;
-    private Date gmtModified;
+    private Long gmtCreate;
+    private Long gmtModified;
     // Getters and Setters
     public Long getId() {
         return id;
@@ -52,19 +52,19 @@ public class Question implements Serializable {
         this.creator = creator;
     }
 
-    public Date getGmtCreate() {
+    public Long getGmtCreate() {
         return gmtCreate;
     }
 
-    public void setGmtCreate(Date gmtCreate) {
+    public void setGmtCreate(Long gmtCreate) {
         this.gmtCreate = gmtCreate;
     }
 
-    public Date getGmtModified() {
+    public Long getGmtModified() {
         return gmtModified;
     }
 
-    public void setGmtModified(Date gmtModified) {
+    public void setGmtModified(Long gmtModified) {
         this.gmtModified = gmtModified;
     }
 }

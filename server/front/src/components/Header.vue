@@ -69,10 +69,8 @@ export default {
   },
   methods: {
     tuichu(){
-      this.$store.state.username = ''
-      console.log('asd');
-      
-      window.location.reload
+      // 调用已经完善的logout方法
+      this.logout()
     },
     handleSelect(key, keyPath) {
       console.log(key, keyPath);
@@ -82,17 +80,16 @@ export default {
       this.$router.go(0);
     },
     logout() {
-      this.$store.state.username = ''
+      // 使用Vuex mutation清除用户状态
+      this.$store.commit('REMOVE_INFO')
       this.hasLogin = false
       
+      // 提示用户
+      this.$message.success("退出成功");
       
-      // const _this = this
-      // _this.$axios.get("/logout").then(res => {
-      //   _this.$store.commit("REMOVE_INFO")
-      //   _this.$message.success("退出成功");
-      //   _this.$router.go(0)
-        
-      // })
+      // 刷新页面以确保状态完全清除
+      this.$router.push('/')
+      this.$router.go(0)
     },
     handleCommand(command) {
       if(command==="logout"){
@@ -104,35 +101,39 @@ export default {
     },
   },
   created() {
-    // if(this.$store.getters.getUser && this.$store.getters.getUser.name) {
-    //   this.userInfo = this.$store.getters.getUser
-    //   if(this.$store.getters.getUser.unreadCount > 0){
-    //     this.userInfo.message_notification = true;
-    //   }
-    //   this.hasLogin = true
-    // }
-    // else{
-    //   this.$axios.get('/login').then(res => {
-    //     const userinfo = res.data.data
-    //     this.$store.commit("SET_USERINFO", userinfo)
-    //     if(userinfo != null){
-    //       this.userInfo = this.$store.getters.getUser
-    //       if(this.$store.getters.getUser.unreadCount > 0){
-    //         this.userInfo.message_notification = true;
-    //       }
-    //       this.hasLogin = true
-    //     }
-    //   })
-    // }
-    
-    if(this.$store.state.username != ''){
-      this.userInfo = this.$store.state.userinfo
-     
+    // 首先检查Vuex中是否有用户信息
+    if(this.$store.state.username && this.$store.state.userInfo) {
+      this.userInfo = this.$store.state.userInfo;
       
-      if(this.$store.getters.getUser.unreadCount > 0){
+      // 如果有未读消息，设置消息通知标记
+      if(this.userInfo && this.userInfo.unreadCount > 0){
         this.userInfo.message_notification = true;
       }
-      this.hasLogin = true
+      this.hasLogin = true;
+    } 
+    // 如果Vuex中没有但localStorage中有，则从localStorage恢复
+    else if(localStorage.getItem('username')) {
+      try {
+        const userinfo = JSON.parse(localStorage.getItem('userinfo'));
+        const username = localStorage.getItem('username');
+        
+        if(userinfo && username) {
+          // 使用mutations更新Vuex状态
+          this.$store.commit('SET_USERINFO', userinfo);
+          this.$store.commit('SET_USERNAME', username);
+          
+          // 更新组件状态
+          this.userInfo = userinfo;
+          this.hasLogin = true;
+          
+          console.log('从localStorage恢复用户登录状态成功');
+        }
+      } catch(e) {
+        console.error('恢复登录状态失败', e);
+        // 清除可能损坏的数据
+        localStorage.removeItem('userinfo');
+        localStorage.removeItem('username');
+      }
     }
   }
 }

@@ -45,7 +45,7 @@ public class QuestionController {
     }
 
 
-    @DeleteMapping("/{questionId}")
+    @DeleteMapping("/question/{questionId}")
     public String deleteQuestion(@PathVariable("questionId") Long questionId) {
         questionService.deleteById(questionId);
         return "删除成功";

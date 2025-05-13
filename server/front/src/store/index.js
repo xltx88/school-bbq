@@ -17,11 +17,20 @@ export default new Vuex.Store({
         },
         SET_USERINFO: (state, userInfo) => {
             state.userInfo = userInfo
+            // 同时更新localStorage以持久化存储
+            localStorage.setItem('userinfo', JSON.stringify(userInfo))
+        },
+        SET_USERNAME: (state, username) => {
+            state.username = username
+            localStorage.setItem('username', username)
         },
         REMOVE_INFO: (state) => {
             state.token = ''
             state.userInfo = {}
+            state.username = ''
             localStorage.setItem("token", '')
+            localStorage.removeItem('userinfo')
+            localStorage.removeItem('username')
         }
     },
     getters: {

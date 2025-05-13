@@ -66,25 +66,21 @@ export default {
             const jwt = res.headers['authorization']
             const userinfo = res.data.data
             // 如果出现错误
-            // if(res.data.code!==200){
-            //   this.$message.error(res.data);
-            // }
+            if(res.data.code === 400){
+              this.$message.error(res.data.message || "登录失败");
+              return;
+            }
             // elementui功能
-              this.$message.success("登录成功");
-              // 把数据共享出去
-              // _this.$store.commit("SET_TOKEN", jwt)
-              //这里先不直接赋值，放到后面直接获取shiro认证登录后的信息
-              //_this.$store.commit("SET_USERINFO", userinfo)
-              //需要刷新一次，因为路由跳转使用缓存，如果直接跳转，前端得到的token没有给到后端shiro做验证即登录操作。
+            this.$message.success("登录成功");
               
-              this.$store.state.userinfo = res.data[0]
-              console.log(this.$store.state.userinfo);
-              
-              this.$router.push("/");
-              // this.$router.go(0);
-              this.$store.state.username = this.param.name 
-              console.log(this.$store.state.username);
-              
+            // 使用Vuex mutations正确设置用户信息
+            this.$store.commit('SET_USERINFO', res.data.data[0])
+            this.$store.commit('SET_USERNAME', this.param.name)
+            console.log(this.$store.state.userInfo);
+            
+            // 跳转到首页
+            this.$router.push("/");
+            console.log(this.$store.state.username);
           })
         } else {
           this.$message.error("请输入账号和密码");

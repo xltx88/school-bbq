@@ -23,4 +23,7 @@ public interface UserMapper {
 
     @Select("SELECT * FROM user")
     List<User> getusr();
+    
+    @Insert("INSERT INTO user (name, password) VALUES (#{name}, #{password})")
+    void saveUser(User user);
 }
