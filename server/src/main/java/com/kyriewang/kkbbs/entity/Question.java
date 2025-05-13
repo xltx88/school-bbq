@@ -1,5 +1,6 @@
 package com.kyriewang.kkbbs.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -9,7 +10,11 @@ public class Question implements Serializable {
     private String description;
     private String tag;
     private Long creator;
+    
+    @JsonProperty("gmt_create")
     private Long gmtCreate;
+    
+    @JsonProperty("gmt_modified")
     private Long gmtModified;
     // Getters and Setters
     public Long getId() {

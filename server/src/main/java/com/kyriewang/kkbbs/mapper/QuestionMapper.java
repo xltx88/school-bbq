@@ -21,9 +21,10 @@ public interface QuestionMapper {
 
 
 //主页初始化获取信息
-    @Select("select * from question order by gmt_create desc limit #{page},#{size}")
+    @Select("select id, title, description, tag, creator, gmt_create as gmtCreate, gmt_modified as gmtModified, comment_count, view_count, like_count from question order by gmt_create desc limit #{page},#{size}")
     List<Question> getList(int page,int size);
-    @Select("select * from question")
+    
+    @Select("select id, title, description, tag, creator, gmt_create as gmtCreate, gmt_modified as gmtModified, comment_count, view_count, like_count from question")
     public List<Question> getq();
     @Select("select * from comment where parent_id = #{id}")
     List<CommentDto> findPL(int id);
@@ -43,7 +44,7 @@ public interface QuestionMapper {
     @Insert("insert into comandqu(userid,queid)values(#{uid},#{qid})")
     public int result(int uid,int qid);
 //  我的问题获取
-    @Select("select * from question join comandqu on question.id = comandqu.queid and comandqu.userid = #{uid}")
+    @Select("select question.id, title, description, tag, creator, gmt_create as gmtCreate, gmt_modified as gmtModified, comment_count, view_count, like_count from question join comandqu on question.id = comandqu.queid and comandqu.userid = #{uid}")
     public List<Question> getUserQue(int uid);
 
     @Insert("INSERT INTO question (title, description, tag, creator, gmt_create, gmt_modified) " +
