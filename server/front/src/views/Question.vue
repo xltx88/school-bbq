@@ -36,7 +36,50 @@
             </el-card>
 
             <!--评论模块-->
-            
+            <el-card class="comment-section" style="margin-top: 20px;" shadow="never">
+              <div slot="header" class="clearfix">
+                <span>评论区</span>
+              </div>
+              
+              <!-- 评论输入框 -->
+              <div class="my-reply">
+                <div class="header-img">
+                  <el-avatar :size="40" :src="myHeader"></el-avatar>
+                </div>
+                <div class="reply-info">
+                  <div
+                    id="replyInput"
+                    contenteditable="true"
+                    class="reply-input"
+                    placeholder="请输入评论内容..."
+                    @focus="showReplyBtn"
+                    @input="onDivInput"
+                  ></div>
+                  <div class="reply-btn-box" v-show="btnShow">
+                    <el-button class="reply-btn" size="small" type="primary" @click="sendComment">发表评论</el-button>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- 评论列表 -->
+              <div v-if="comments.length > 0">
+                <div v-for="(comment, index) in comments" :key="index" class="author-title">
+                  <div class="header-img">
+                    <el-avatar :size="40" :src="comment.user ? comment.user.avatarUrl : myHeader"></el-avatar>
+                  </div>
+                  <div class="author-info">
+                    <span class="author-name">{{ comment.user ? comment.user.name : '匿名用户' }}</span>
+                    <span class="author-time">{{ comment.gmt_create }}</span>
+                  </div>
+                  <div class="talk-box">
+                    <p class="reply">{{ comment.content }}</p>
+                  </div>
+                </div>
+              </div>
+              <div v-else style="text-align: center; padding: 20px;">
+                <span style="color: #909399;">暂无评论，快来发表第一条评论吧！</span>
+              </div>
+            </el-card>
 
           </el-col>
 
@@ -137,8 +180,7 @@ export default {
         view_count: "",
         comment_count: "",
       },
-      comments: {
-      },
+      comments: [],
       relatedQuestions: {},
       ownQuestion: false,
       btnShow: false,
@@ -177,7 +219,7 @@ export default {
       console.log(res);
       this.question.view_count = question.view_count
       _this.question.title = question.title
-      _this.comments = res.data[0].view_count
+      // 不要在这里设置comments，避免覆盖评论数组
       _this.question.id = question.id
 
       _this.question.tag = question.tag.split(",")
@@ -215,20 +257,29 @@ export default {
     this.$axios.get("/Comment?id=" + this.questionId).then(res => {
       console.log(this.questionId);
       console.log(res);
-      this.comments = res.data
-
+      if (res.data && Array.isArray(res.data)) {
+        this.comments = res.data;
+        // 格式化评论时间
+        for (const comment of this.comments) {
+          if (comment.gmt_create) {
+            comment.gmt_create = this.dateStr(comment.gmt_create);
+          }
+        }
+      } else {
+        this.comments = [];
+      }
     })
     // 获取帖子数据
 
 
 
-    // if (this.$store.getters.getUser && this.$store.getters.getUser.name) {
-    //   const userInfo = this.$store.getters.getUser
-    //   this.myHeader = userInfo.avatarUrl
-    //   this.myName = userInfo.name
-    //   this.id = userInfo.id
-    //   this.hasLogin = true
-    // }
+    // 获取当前登录用户信息
+    if (this.$store.getters.getUser && this.$store.getters.getUser.name) {
+      const userInfo = this.$store.getters.getUser
+      this.myHeader = userInfo.avatarUrl || require('../assets/img/default_avatar.png')
+      this.myName = userInfo.name
+      this.myId = userInfo.id
+    }
   },
   // watch: {
   //   '$route.params.questionId':function(val, old) {
@@ -290,29 +341,41 @@ export default {
         commentDto.parent_id = this.question.id
         commentDto.content = this.replyComment
         commentDto.type = 1//表示回复的是问题
+        
+        // 设置用户信息
+        user.name = this.myName
+        user.avatarUrl = this.myHeader
         a.user = user
-        a.user.name = this.myName
         a.content = this.replyComment
-        a.user.avatarUrl = this.myHeader
         a.gmt_create = time
         a.comment_count = 0
         a.like_count = 0
+        
+        // 添加到评论列表顶部
         this.comments.unshift(a)
-        //this.comments.push(a)
+        
+        // 清空输入框
         this.replyComment = ''
         input.innerHTML = '';
-        //发送一个post请求
+        this.btnShow = false; // 隐藏发表按钮
+        
+        // 发送评论到后端
         this.$axios.post('/comment', commentDto, {
           headers: {
             "Authorization": localStorage.getItem("token")
           }
         }).then(res => {
-          this.$alert('操作成功', '提示', {
-            confirmButtonText: '确定',
-            callback: action => {
-            }
+          this.$message({
+            type: 'success',
+            message: '评论发表成功'
           });
-
+        }).catch(err => {
+          this.$message({
+            type: 'error',
+            message: '评论发表失败，请重试'
+          });
+          // 移除刚才添加的评论
+          this.comments.shift();
         })
       }
     },

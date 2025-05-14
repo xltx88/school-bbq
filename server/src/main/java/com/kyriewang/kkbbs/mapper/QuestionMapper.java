@@ -2,6 +2,7 @@ package com.kyriewang.kkbbs.mapper;
 
 import com.kyriewang.kkbbs.dto.CommentDto;
 import com.kyriewang.kkbbs.dto.queDto;
+import com.kyriewang.kkbbs.entity.Comment;
 import com.kyriewang.kkbbs.entity.Question;
 import com.kyriewang.kkbbs.entity.User;
 import org.apache.ibatis.annotations.*;
@@ -58,4 +59,8 @@ public interface QuestionMapper {
 
     @Delete("DELETE FROM question WHERE id = #{id}")
     void deleteById(Long id);
+    
+    @Insert("INSERT INTO comment (parent_id, type, comment_creator, receiver_id, content, gmt_create, gmt_modified, like_count, comment_count) " +
+            "VALUES (#{parent_id}, #{type}, #{comment_creator}, #{receiver_id}, #{content}, #{gmt_create}, #{gmt_modified}, 0, 0)")
+    void insertComment(Comment comment);
 }
