@@ -2,7 +2,6 @@
     <div id="app">
       <router-view v-if="isRouterAlive"></router-view>
       <div class="footer">
-        <div>Copyright © 2021  ICP备000000号 · 服务器: <a href="https://cloud.tencent.com/">腾讯云</a> · All Rights Reserved Powered By <a href="http://www.kyriewang.cn" target="_blank"> KK社区 </a></div>
       </div>
     </div>
 </template>

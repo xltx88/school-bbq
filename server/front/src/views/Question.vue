@@ -68,8 +68,15 @@
                     <el-avatar :size="40" :src="comment.user ? comment.user.avatarUrl : myHeader"></el-avatar>
                   </div>
                   <div class="author-info">
-                    <span class="author-name">{{ comment.user ? comment.user.name : '匿名用户' }}</span>
+                    <span class="author-name">{{ comment.user ? comment.user.name : (comment.receiver_name ? comment.receiver_name : '匿名用户') }}</span>
                     <span class="author-time">{{ comment.gmt_create }}</span>
+                    <!-- 添加删除按钮，仅当评论是当前用户发表的才显示 -->
+                    <el-button 
+                      v-if="comment.comment_creator === myId || (comment.user && comment.user.id === myId)" 
+                      type="text" 
+                      size="mini" 
+                      icon="el-icon-delete" 
+                      @click="deleteComment(comment.id, index)">删除</el-button>
                   </div>
                   <div class="talk-box">
                     <p class="reply">{{ comment.content }}</p>
@@ -315,6 +322,41 @@ export default {
     _inputShow(i) {
       return this.comments[i].inputShow
     },
+    // 删除评论方法
+    deleteComment(commentId, index) {
+      // 确认是否删除
+      this.$confirm('确定要删除这条评论吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        // 调用后端删除接口
+        this.$axios.delete(`/comment/${commentId}`, {
+          headers: {
+            "Authorization": localStorage.getItem("token")
+          }
+        }).then(res => {
+          // 删除成功，从评论列表中移除
+          this.comments.splice(index, 1);
+          this.$message({
+            type: 'success',
+            message: '删除成功!'
+          });
+        }).catch(err => {
+          this.$message({
+            type: 'error',
+            message: err.response?.data || '删除失败，请重试'
+          });
+        });
+      }).catch(() => {
+        // 取消删除
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        });
+      });
+    },
+    
     //发表主评论主评论就不用带回复的id了，直接查问题作业就行
     sendComment() {
       if (!this.replyComment) {
@@ -341,6 +383,7 @@ export default {
         commentDto.parent_id = this.question.id
         commentDto.content = this.replyComment
         commentDto.type = 1//表示回复的是问题
+        commentDto.receiver_name = this.question.username // 添加接收者用户名
         
         // 设置用户信息
         user.name = this.myName
@@ -350,6 +393,7 @@ export default {
         a.gmt_create = time
         a.comment_count = 0
         a.like_count = 0
+        a.receiver_name = this.question.username // 确保本地评论对象也有receiver_name字段
         
         // 添加到评论列表顶部
         this.comments.unshift(a)

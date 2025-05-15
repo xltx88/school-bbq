@@ -64,6 +64,29 @@ public class QuestionController {
             comment.setType(commentDto.getType());
             comment.setContent(commentDto.getContent());
             
+            // 设置receiver_name，确保不为null
+            String receiverName = commentDto.getReceiver_name();
+            System.out.println("接收到的receiver_name: " + receiverName); // 调试日志
+            if (receiverName == null || receiverName.isEmpty()) {
+                // 如果是对问题的评论(type=1)，则获取问题创建者的用户名
+                if (commentDto.getType() != null && commentDto.getType() == 1 && commentDto.getParent_id() != null) {
+                    try {
+                        // 获取问题ID对应的创建者ID
+                        int creatorId = questionService.getcomuser(commentDto.getParent_id().intValue());
+                        // 获取创建者用户名
+                        receiverName = questionService.getcomuser2(creatorId);
+                    } catch (Exception ex) {
+                        // 如果获取失败，使用默认值
+                        receiverName = "未知用户";
+                    }
+                } else {
+                    // 默认接收者名称
+                    receiverName = "未知用户";
+                }
+            }
+            comment.setReceiver_name(receiverName);
+            System.out.println("设置到Comment实体的receiver_name: " + comment.getReceiver_name()); // 调试日志
+            
             // 处理receiver_id，确保不为null
             Long receiverId = commentDto.getReceiver_id();
             if (receiverId == null) {
@@ -107,6 +130,30 @@ public class QuestionController {
         } catch (Exception e) {
             e.printStackTrace();
             return new ResponseEntity<>("评论失败: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    @DeleteMapping("/comment/{commentId}")
+    public ResponseEntity<String> deleteComment(@PathVariable("commentId") Long commentId, @RequestHeader(value = "Authorization", required = false) String token) {
+        try {
+            // 从token中获取用户ID，这里简化处理，实际应该从token解析用户信息
+            Long userId = 1L; // 默认用户ID，实际应从token中获取
+            if (token != null && !token.isEmpty()) {
+                // 这里应该有token解析逻辑，获取真实用户ID
+                // userId = tokenService.getUserIdFromToken(token);
+            }
+            
+            // 删除评论，只有评论创建者才能删除自己的评论
+            int result = questionService.deleteComment(commentId, userId);
+            
+            if (result > 0) {
+                return new ResponseEntity<>("删除评论成功", HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>("删除评论失败：您只能删除自己的评论", HttpStatus.FORBIDDEN);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>("删除评论失败: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

@@ -27,7 +27,7 @@ public interface QuestionMapper {
     
     @Select("select id, title, description, tag, creator, gmt_create as gmtCreate, gmt_modified as gmtModified, comment_count, view_count, like_count from question")
     public List<Question> getq();
-    @Select("select * from comment where parent_id = #{id}")
+    @Select("select c.*, u.name as receiver_name from comment c left join user u on c.receiver_id = u.id where c.parent_id = #{id}")
     List<CommentDto> findPL(int id);
     @Select("select * from question where id = #{id}")
     List<queDto> getallque(int id);
@@ -60,7 +60,10 @@ public interface QuestionMapper {
     @Delete("DELETE FROM question WHERE id = #{id}")
     void deleteById(Long id);
     
-    @Insert("INSERT INTO comment (parent_id, type, comment_creator, receiver_id, content, gmt_create, gmt_modified, like_count, comment_count) " +
-            "VALUES (#{parent_id}, #{type}, #{comment_creator}, #{receiver_id}, #{content}, #{gmt_create}, #{gmt_modified}, 0, 0)")
+    @Insert("INSERT INTO comment (parent_id, type, comment_creator, receiver_id, receiver_name, content, gmt_create, gmt_modified, like_count, comment_count) " +
+            "VALUES (#{parent_id}, #{type}, #{comment_creator}, #{receiver_id}, #{receiver_name}, #{content}, #{gmt_create}, #{gmt_modified}, 0, 0)")
     void insertComment(Comment comment);
+    
+    @Delete("DELETE FROM comment WHERE id = #{id} AND comment_creator = #{userId}")
+    int deleteComment(Long id, Long userId);
 }
