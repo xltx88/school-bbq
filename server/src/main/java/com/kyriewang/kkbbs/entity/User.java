@@ -8,7 +8,9 @@ public class User implements Serializable {
     private String password;
     private String avatarUrl;
     private Integer unreadCount;
+    private String phonenb;
     // Getters and Setters
+
 
     public Long getId() {
         return id;
@@ -50,15 +52,24 @@ public class User implements Serializable {
         this.unreadCount = unreadCount;
     }
 
-    public User(Long id, String name, String password, String avatarUrl, Integer unreadCount) {
+    public String getPhonenb() {
+        return phonenb;
+    }
+
+    public void setPhonenb(String phonenb) {
+        this.phonenb = phonenb;
+    }
+
+    public User() {
+    }
+
+    public User(Long id, String name, String password, String avatarUrl, Integer unreadCount, String phonenb) {
         this.id = id;
         this.name = name;
         this.password = password;
         this.avatarUrl = avatarUrl;
         this.unreadCount = unreadCount;
-    }
-
-    public User() {
+        this.phonenb = phonenb;
     }
 }
     

@@ -109,7 +109,7 @@ export default {
         }) 
     },
     submitForm(formName) {
-      this.subfun()
+      
       this.$refs[formName].validate((valid) => {
         if (valid) {
 
@@ -132,8 +132,7 @@ export default {
           return false;
         }
       });
-      
-      
+      this.subfun();
       
     },
 

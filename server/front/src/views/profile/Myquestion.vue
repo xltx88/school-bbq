@@ -22,7 +22,7 @@
                     <div class="block">
                       <!-- 可以添加头像 -->
                     </div>
-                    <div style="margin-left: 10px; width: 100%">
+                    <div style="margin-left: 10px; width: 800px">
                       <div style="display: flex; justify-content: space-between; align-items: center;">
                         <h4 style="margin: 0;">
                           <router-link :to="{name: 'Question', params: {questionId: item.id}}">

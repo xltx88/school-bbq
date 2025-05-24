@@ -18,12 +18,12 @@ public class LoginController {
     @Autowired
     private UserMapper userMapper;
 //    测试
-    @GetMapping("/cs")
-    public List<User> cs(String username){
-        List<User> list = userMapper.findByUsername2(username);
-        System.out.println(list.get(0).getName());
-        return list;
-    }
+//    @GetMapping("/cs")
+//    public List<User> cs(String username){
+//        List<User> list = userMapper.findByUsername2(username);
+//        System.out.println(list.get(0).getName());
+//        return list;
+//    }
 
     @PostMapping("/login")
     public Map<String, Object> login(@RequestBody User user) {
@@ -33,6 +33,7 @@ public class LoginController {
         Map<String, Object> response = new HashMap<>();
         
         List<User> users = userMapper.findByUsername2(user.getName());
+
         
         // 检查用户是否存在
         if (users == null || users.isEmpty()) {
@@ -64,6 +65,7 @@ public class LoginController {
         
         String username = registerInfo.get("username");
         String password = registerInfo.get("password");
+        String phonenb = registerInfo.get("phonenb");
         // String secondPassword = registerInfo.get("secondPassword");
         
         // // 验证两次密码是否一致
@@ -72,13 +74,19 @@ public class LoginController {
         //     response.put("message", "两次输入的密码不一致");
         //     return response;
         // }
-        
+
         // 检查用户名是否已存在
         try {
             List<User> existingUsers = userMapper.findByUsername2(username);
-            if (existingUsers != null && !existingUsers.isEmpty()) {
+            List<User> existingPhone = userMapper.findByUsername2(phonenb);
+            if (existingUsers != null && !existingUsers.isEmpty() ) {
                 response.put("code", 400);
                 response.put("message", "用户名已存在");
+                return response;
+            }
+            if(existingPhone != null && !existingPhone.isEmpty()){
+                response.put("code", 400);
+                response.put("message", "手机号已被使用");
                 return response;
             }
         } catch (Exception e) {
@@ -89,6 +97,8 @@ public class LoginController {
         User newUser = new User();
         newUser.setName(username);
         newUser.setPassword(password);
+        newUser.setPhonenb(phonenb);
+        newUser.setAvatarUrl("https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png");
         
         try {
             // 假设UserMapper有一个save方法来保存用户

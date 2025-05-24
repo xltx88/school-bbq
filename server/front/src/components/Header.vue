@@ -2,7 +2,7 @@
   <div class="header">
     <div class="logo">
       <router-link to="/supplierAllBack">
-        <a href="#" >KK社区</a>
+        <a href="#" >讨论中心</a>
       </router-link>
     </div>
     <el-input

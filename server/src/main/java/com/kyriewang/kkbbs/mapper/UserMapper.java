@@ -7,10 +7,16 @@ import java.util.List;
 
 @Mapper
 public interface UserMapper {
-    @Select("select * from user WHERE name = #{username}")
+    @Select("select * from user WHERE name = #{username} or phonenb = #{username}")
     public List<User> findByUsername2(String username);
     @Select("SELECT * FROM user WHERE name = #{name}")
     User findByUsername(String name);
+
+
+    @Select("select * from where phonenb = #{phonenb}")
+    List<User> findByUserphone(String phonenb);
+
+
     @Select("select * from user where id=#{id}")
     User getUser(String id);
     @Insert("insert into user (name,account_id,password,salt,gmt_create,gmt_modified,role,register_way,avatar_url) values (#{name},#{account_id},#{password},#{salt},#{gmt_create},#{gmt_modified},#{role},#{register_way},#{avatar_url})")
@@ -24,6 +30,12 @@ public interface UserMapper {
     @Select("SELECT * FROM user")
     List<User> getusr();
     
-    @Insert("INSERT INTO user (name, password) VALUES (#{name}, #{password})")
+    @Insert("INSERT INTO user (name, password,avatarUrl,phonenb) VALUES (#{name}, #{password},#{avatarUrl},#{phonenb})")
     void saveUser(User user);
+//    更新用户信息
+    @Update("update user set name = #{name},avatarUrl = #{avatarUrl} where id = #{id}")
+    int  updUser(String name,String avatarUrl,Long id);
+//    修改密码
+    @Update("update user set password = #{newPassword} where  id = #{id} ")
+    int upPaSS(String newPassword,Long id);
 }

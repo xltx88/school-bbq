@@ -12,10 +12,10 @@
                 <h3 style="font-family:Hiragino Sans GB"><i class="el-icon-reading"></i> 芜湖~</h3>
                 <el-tabs v-model="sort" @tab-click="handleClick">
                   <el-tab-pane label="最新" name="new"></el-tab-pane>
-                  <el-tab-pane label="月榜" name="hot30"></el-tab-pane>
+                  <!-- <el-tab-pane label="月榜" name="hot30"></el-tab-pane>
                   <el-tab-pane label="周榜" name="hot7"></el-tab-pane>
                   <el-tab-pane label="最热" name="hot"></el-tab-pane>
-                  <el-tab-pane label="消灭零回复" name="no"></el-tab-pane>
+                  <el-tab-pane label="消灭零回复" name="no"></el-tab-pane> -->
                 </el-tabs>
               </el-card>
               <div class="line"></div>
@@ -187,16 +187,25 @@ export default {
     hottags(tag){
       this.$router.push({path:'/',query:{tag}})
       this.$router.go(0);
+    },
+    sousuo(){
+      console.log(this.search);
+      this.$axios.get("/search?st="+ this.search).then(res=>{
+        console.log(res);
+        this.questions = res.data
+      })
     }
   },
   created() {
     this.page()
     if(this.$route.query.search!=null&&this.$route.query.search!=undefined){
       this.search = this.$route.query.search
+       this.sousuo()
     }
     if(this.$route.query.tag!=null&&this.$route.query.tag!=undefined){
       this.tag = this.$route.query.tag
     }
+   
     
   },
   mounted() { 

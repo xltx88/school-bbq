@@ -7,7 +7,8 @@ export default new Vuex.Store({
     state: {
         token: localStorage.getItem("token"),
         userInfo: {},
-        username:''
+        username:'',
+        userid :''
     },
     mutations: {
         // set

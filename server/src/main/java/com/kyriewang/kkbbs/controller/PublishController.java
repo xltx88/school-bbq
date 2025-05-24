@@ -19,15 +19,16 @@ public class PublishController {
     @PostMapping("/add")
     public String addQuestion(@RequestBody Question question, HttpServletRequest request) {
         // 模拟获取用户 ID
-        Long userId = 1L;
-        question.setCreator(userId);
+//        Long userId = 1L;
+//        question.setCreator(userId);
         
         // 设置创建时间和修改时间
         Date now = new Date();
         // 将Date转换为long类型的时间戳，以匹配数据库字段类型
         question.setGmtCreate(now.getTime());
         question.setGmtModified(now.getTime());
-        
+        int dec = questionService.getdescid();
+        question.setId(Long.valueOf(dec+1));
         questionService.insert(question);
         return "操作成功";
     }
@@ -35,6 +36,7 @@ public class PublishController {
     public int insrtzj(String username){
         int userid = questionService.getuserid(username);
         int dec = questionService.getdescid();
+        System.out.println("decid = " + dec);
         int result = questionService.result(userid,dec+ 1);
         return result;
     }

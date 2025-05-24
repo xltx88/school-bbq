@@ -12,7 +12,7 @@
             <el-card shadow="never">
               <h3 class="question-title"><span>{{ question.title }}</span></h3>
               <span class="text-desc">
-                作者：<span>{{ question.username }}</span> |
+                作者：<span>{{ question.username }}</span> 
                 <!-- 发布时间：<span>{{question.creat_time}}</span> | -->
                 <!-- 阅读数： <span>{{viewc}}</span> -->
               </span>
@@ -65,9 +65,12 @@
               <div v-if="comments.length > 0">
                 <div v-for="(comment, index) in comments" :key="index" class="author-title">
                   <div class="header-img">
-                    <el-avatar :size="40" :src="comment.user ? comment.user.avatarUrl : myHeader"></el-avatar>
+                    <!-- comment.avatarUrl ? comment.avatarUrl : myHeader -->
+                    
+                    <el-avatar :size="40" :src="comment.avatarUrl ? comment.avatarUrl : myHeader"></el-avatar>
                   </div>
                   <div class="author-info">
+                    
                     <span class="author-name">{{ comment.user ? comment.user.name : (comment.receiver_name ? comment.receiver_name : '匿名用户') }}</span>
                     <span class="author-time">{{ comment.gmt_create }}</span>
                     <!-- 添加删除按钮，仅当评论是当前用户发表的才显示 -->
@@ -128,8 +131,7 @@
                 <div style=" padding: 8px;float: left;margin-top: 0px" class="desc">社交:</div>
                 <li style="padding: 8px; list-style:none;text-align: center;">
                   <a target="_blank"><img class="link-img" src="../assets/img/QQ.png" alt=""></a>
-                  <a style="margin-left: 5%;" href="https://github.com/KyrieWang233" target="_blank"><img
-                      class="link-img" src="../assets/img/github.png" alt=""></a>
+                 
                   <a style="margin-left: 5%; margin-right: 10%" target="_blank"><img class="link-img"
                       src="../assets/img/gitee.png" alt=""></a>
                 </li>
@@ -208,11 +210,14 @@ export default {
 
     const _this = this
     // 获取帖子作者
-    
+    console.log(1);
     console.log(this.questionId);
-    
+     
     this.$axios.get("/getcomu?id=" + this.questionId).then(qwe => {
-      console.log(1);
+      console.log(this.questionId);
+     
+      
+      
 
       console.log("帖子作者名字：" + qwe.data);
       this.question.username = qwe.data
@@ -263,9 +268,20 @@ export default {
     // 获取评论
     this.$axios.get("/Comment?id=" + this.questionId).then(res => {
       console.log(this.questionId);
-      console.log(res);
+      
+
       if (res.data && Array.isArray(res.data)) {
+        // comment_creator
         this.comments = res.data;
+        
+        // for(var i=0;i<res.data.length;i++){
+        //   var j = i
+        //   this.$axios.get("/getU?id=" + res.data[i].comment_creator).then(res=>{
+        //     this.comments[j].avatarUrl = res.data
+        //     console.log(this.comments[j]);
+        //   })
+
+        // }
         // 格式化评论时间
         for (const comment of this.comments) {
           if (comment.gmt_create) {
@@ -275,6 +291,7 @@ export default {
       } else {
         this.comments = [];
       }
+      console.log(this.comments);
     })
     // 获取帖子数据
 
@@ -324,6 +341,8 @@ export default {
     },
     // 删除评论方法
     deleteComment(commentId, index) {
+      console.log(commentId);
+      
       // 确认是否删除
       this.$confirm('确定要删除这条评论吗?', '提示', {
         confirmButtonText: '确定',
@@ -332,9 +351,7 @@ export default {
       }).then(() => {
         // 调用后端删除接口
         this.$axios.delete(`/comment/${commentId}`, {
-          headers: {
-            "Authorization": localStorage.getItem("token")
-          }
+          
         }).then(res => {
           // 删除成功，从评论列表中移除
           this.comments.splice(index, 1);
@@ -356,7 +373,16 @@ export default {
         });
       });
     },
-    
+    // 解决用户id传输bug
+    changeId(){
+      var user ={
+          username:this.$store.state.username
+      }
+      this.axios.get("/cid?username=" + user.username).then(res=>{
+        console.log(res.data);
+        
+      })
+    },
     //发表主评论主评论就不用带回复的id了，直接查问题作业就行
     sendComment() {
       if (!this.replyComment) {
@@ -383,7 +409,9 @@ export default {
         commentDto.parent_id = this.question.id
         commentDto.content = this.replyComment
         commentDto.type = 1//表示回复的是问题
-        commentDto.receiver_name = this.question.username // 添加接收者用户名
+        commentDto.receiver_name = this.$store.state.username // 添加接收者用户名
+        commentDto.comment_creator = this.$store.state.userInfo.id//添加发送方id
+        console.log(commentDto);
         
         // 设置用户信息
         user.name = this.myName
@@ -394,6 +422,7 @@ export default {
         a.comment_count = 0
         a.like_count = 0
         a.receiver_name = this.question.username // 确保本地评论对象也有receiver_name字段
+        a.comment_creator = this.$store.state.userInfo.id
         
         // 添加到评论列表顶部
         this.comments.unshift(a)
@@ -409,9 +438,11 @@ export default {
             "Authorization": localStorage.getItem("token")
           }
         }).then(res => {
+          
           this.$message({
             type: 'success',
             message: '评论发表成功'
+            
           });
         }).catch(err => {
           this.$message({
@@ -422,6 +453,8 @@ export default {
           this.comments.shift();
         })
       }
+
+      // this.changeId()
     },
     //发表二级评论带上接受者的id，这样方便通知
     sendCommentReply(i) {
@@ -451,7 +484,7 @@ export default {
         commentDto.receiver_id = this.receiver_id
         a.user = user
         a.user.name = this.myName
-        a.receiver_name = this.receiver_name
+        a.receiver_name = this.$store.state.username
         a.user.avatarUrl = this.myHeader
         a.content = this.replyComment
         a.gmt_create = time

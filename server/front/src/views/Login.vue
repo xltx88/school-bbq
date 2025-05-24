@@ -1,7 +1,7 @@
 <template>
   <div class="login-wrap">
     <div class="ms-login">
-      <div class="ms-title">登录KK社区</div>
+      <div class="ms-title">登录</div>
       <el-form :model="param" :rules="rules" ref="login" label-width="0px" class="ms-content">
         <el-form-item prop="username">
           <el-input v-model="param.name" placeholder="username">
@@ -28,7 +28,7 @@
         <div class="login-btn">
           <el-button type="primary" @click="toRegister()">注册</el-button>
         </div>
-        <p class="login-tips">Tips : 用户名和密码随便填。</p>
+        <!-- <p class="login-tips">Tips : 用户名和密码随便填。</p> -->
       </el-form>
     </div>
   </div>
@@ -61,7 +61,7 @@ export default {
           const _this = this
           this.$axios.post('/login',this.param).then(res=>{
             
-            console.log(res);
+            console.log(res.data);
             
             const jwt = res.headers['authorization']
             const userinfo = res.data.data
@@ -76,11 +76,13 @@ export default {
             // 使用Vuex mutations正确设置用户信息
             this.$store.commit('SET_USERINFO', res.data.data[0])
             this.$store.commit('SET_USERNAME', this.param.name)
-            console.log(this.$store.state.userInfo);
             
+            console.log(this.$store.state.userInfo);  
+           
+            this.$store.state.username = res.data.data[0].name
             // 跳转到首页
             this.$router.push("/");
-            console.log(this.$store.state.username);
+            console.log( "state。username=" +  this.$store.state.username);
           })
         } else {
           this.$message.error("请输入账号和密码");

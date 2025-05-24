@@ -30,7 +30,7 @@ public class ProfileController {
     public List<User> getus() {
         return userService.getusr();
     }
-
+// 获取我发布的问题
     @GetMapping("/myquestion")
     public List<Question> getmyq(String username){
         int uid = questionService.getuserid(username);

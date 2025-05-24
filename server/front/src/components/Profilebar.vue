@@ -13,12 +13,12 @@
         <i class="el-icon-menu"></i>
         <span slot="title">我的提问</span>
       </el-menu-item>
-      <el-menu-item :index="'/profile/message'">
+      <!-- <el-menu-item :index="'/profile/message'">
         <el-badge :hidden="unreadCount===0" :value="unreadCount" :max="99" class="item">
           <i class="el-icon-document"></i>
         </el-badge>
         <span slot="title">我的消息</span>
-      </el-menu-item>
+      </el-menu-item> -->
       <el-menu-item :index="'/profile/information'">
         <i class="el-icon-menu"></i>
         <span slot="title">基本设置</span>

@@ -14,6 +14,7 @@ public class CommentDto {
     private Long like_count;
     private Integer comment_count;
     private String content;
+    private String avatarUrl;
 
     public Long getId() {
         return id;
@@ -103,10 +104,18 @@ public class CommentDto {
         this.content = content;
     }
 
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
+    }
+
     public CommentDto() {
     }
 
-    public CommentDto(Long id, Long parent_id, Integer type, Long comment_creator, Long receiver_id, String receiver_name, Long gmt_create, Long gmt_modified, Long like_count, Integer comment_count, String content) {
+    public CommentDto(Long id, Long parent_id, Integer type, Long comment_creator, Long receiver_id, String receiver_name, Long gmt_create, Long gmt_modified, Long like_count, Integer comment_count, String content, String avatarUrl) {
         this.id = id;
         this.parent_id = parent_id;
         this.type = type;
@@ -118,7 +127,10 @@ public class CommentDto {
         this.like_count = like_count;
         this.comment_count = comment_count;
         this.content = content;
+        this.avatarUrl = avatarUrl;
     }
+
+
 //    private UserDto user;
 //    private Boolean inputShow=false;
 //    private List<CommentDto> replys

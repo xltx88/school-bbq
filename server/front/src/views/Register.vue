@@ -11,22 +11,21 @@
           </el-input>
         </el-form-item>
         <el-form-item prop="password">
-          <el-input
-              type="password"
-              placeholder="密码"
-              v-model="param.password"
-          >
+          <el-input type="password" placeholder="密码" v-model="param.password">
             <template #prepend>
               <el-button icon="el-icon-lock"></el-button>
             </template>
           </el-input>
         </el-form-item>
         <el-form-item prop="secondPassword">
-          <el-input
-              type="password"
-              placeholder="确认密码"
-              v-model="param.secondPassword"
-          >
+          <el-input type="password" placeholder="确认密码" v-model="param.secondPassword">
+            <template #prepend>
+              <el-button icon="el-icon-lock"></el-button>
+            </template>
+          </el-input>
+        </el-form-item>
+        <el-form-item prop="phonenb">
+          <el-input type="text" placeholder="手机号" v-model="param.phonenb">
             <template #prepend>
               <el-button icon="el-icon-lock"></el-button>
             </template>
@@ -60,23 +59,27 @@ export default {
   name: "Register.vue",
   data() {
     return {
-      verImg:"",
+      verImg: "",
       param: {
         username: "",
         password: "",
-        secondPassword:"",
-        verKey:"",
-        verCode:""
+        secondPassword: "",
+        verKey: "",
+        verCode: "",
+        phonenb: ""
       },
       rules: {
         username: [
-          { required: true, message: "请输入用户名（不小于3个字符）", trigger: "blur",min:3,max:25 }
+          { required: true, message: "请输入用户名（不小于3个字符）", trigger: "blur", min: 3, max: 25 }
         ],
         password: [
-          { required: true, message: "请输入密码（不小于6个字符）", trigger: "blur",min:6,max:35 }
+          { required: true, message: "请输入密码（不小于6个字符）", trigger: "blur", min: 6, max: 35 }
         ],
         secondPassword: [
-          { required: true, message: "请确认密码", trigger: "blur",min:6,max:35 }
+          { required: true, message: "请确认密码", trigger: "blur", min: 6, max: 35 }
+        ],
+        phonenb: [
+          { required: true, message: "请确认手机号", trigger: "blur", min: 11, max: 11 }
         ],
         // verCode: [
         //   { required: true, message: "请输入验证码", trigger: "blur",min:5,max:5 }
@@ -87,28 +90,45 @@ export default {
   methods: {
     submitForm() {
       this.$refs.register.validate(valid => {
-        if (valid) {
-          const _this = this
-          this.$axios.post('/register',this.param).then(res=>{
-            //如果出现错误
-            if(res.data.code!==200){
-              this.$message.error(res.data.message);
-            }else {
-              this.$message.success("注册成功");
-              this.$router.push("/login");
-              //this.$router.push("/");
-              //this.$router.go(0);
-            }
-          })
-        } else {
-          this.$message.error("请正确输入账号、密码和验证码");
-          return false;
-        }
-      });
+        console.log(valid);
+        this.$axios.post('/register', this.param).then(res => {
+          if (res.data.code != 200) {
+            this.$message.error("注册失败")
+          } else {
+            this.$message.success("注册成功")
+            this.$router.push("/login");
+
+
+            //         //this.$router.push("/");
+            //         //this.$router.go(0);
+          }
+        })
+      })
+      //   if (valid) {
+      //     const _this = this
+      //     this.$axios.post('/register',this.param).then(res=>{
+      //       //如果出现错误
+      //       if(res.data.code!==200){
+      //         this.$message.error(res.data.message);
+      //       }else {
+      //         this.$message.success("注册成功");
+      //         this.$router.push("/login");
+      //         //this.$router.push("/");
+      //         //this.$router.go(0);
+      //       }
+      //     })
+      //   } else {
+      //     this.$message.error("请正确输入账号、密码和验证码");
+      //     return false;
+      //   }
+      // });
+
+
+
     },
-    changeCode(){
+    changeCode() {
       const _this = this
-      this.$axios.get('/captcha').then(res=>{
+      this.$axios.get('/captcha').then(res => {
         _this.param.verKey = res.data.data.key
         _this.verImg = res.data.data.image
       })
@@ -128,6 +148,7 @@ export default {
   background-image: url(../assets/img/login-bg.jpg);
   background-size: 100%;
 }
+
 .ms-title {
   width: 100%;
   padding: 20px 0;
@@ -136,6 +157,7 @@ export default {
   color: #fff;
   border-bottom: 1px solid #ddd;
 }
+
 .ms-login {
   position: absolute;
   left: 50%;
@@ -146,17 +168,21 @@ export default {
   background: rgba(255, 255, 255, 0.3);
   overflow: hidden;
 }
+
 .ms-content {
   padding: 30px 30px;
 }
+
 .login-btn {
   text-align: center;
 }
+
 .login-btn button {
   width: 100%;
   height: 36px;
   margin-bottom: 10px;
 }
+
 .login-tips {
   font-size: 12px;
   line-height: 30px;

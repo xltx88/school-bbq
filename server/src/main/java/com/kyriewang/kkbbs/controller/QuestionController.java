@@ -4,15 +4,19 @@ import com.kyriewang.kkbbs.dto.CommentDto;
 import com.kyriewang.kkbbs.dto.queDto;
 import com.kyriewang.kkbbs.entity.Comment;
 import com.kyriewang.kkbbs.entity.Question;
+import com.kyriewang.kkbbs.entity.User;
 import com.kyriewang.kkbbs.mapper.QuestionMapper;
+import com.kyriewang.kkbbs.mapper.UserMapper;
 import org.apache.ibatis.annotations.Select;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.management.Query;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @CrossOrigin
 @RestController
@@ -21,7 +25,8 @@ public class QuestionController {
 
     @Autowired
     private QuestionMapper questionService;
-
+    @Autowired
+    private UserMapper userMapper;
     @GetMapping("/question")
     public List<Question> findById(String id){
         List<Question> list = questionService.findById(id);
@@ -32,7 +37,21 @@ public class QuestionController {
     @GetMapping("/Comment")
     public List<CommentDto> getComment(String id){
         List<CommentDto> list = questionService.findPL(Integer.valueOf(id));
+//        System.out.println(list.size());
+        int i;
+        for(i=0;i<list.size();i++){
+            String st = getu(String.valueOf(list.get(i).getComment_creator()));
+            list.get(i).setAvatarUrl(st);
+
+        }
+
         return list;
+    }
+//    获取评论头像
+    @GetMapping("/getU")
+    public String getu(String id){
+        User user =  userMapper.getUser(id);
+        return user.getAvatarUrl();
     }
     @GetMapping("/allqu")
     public List<queDto> getallqu(String id){
@@ -42,6 +61,7 @@ public class QuestionController {
 //    获取帖子作者
     @GetMapping("/getcomu")
     public String getcomu(String id){
+        System.out.println("getcomuid=" + id);
         int userid = questionService.getcomuser(Integer.valueOf(id));
         String username = questionService.getcomuser2(userid);
         System.out.println(username);
@@ -52,9 +72,18 @@ public class QuestionController {
     @DeleteMapping("/question/{questionId}")
     public String deleteQuestion(@PathVariable("questionId") Long questionId) {
         questionService.deleteById(questionId);
+        questionService.cqDeById(questionId);
         return "删除成功";
     }
-    
+//    修改评论id
+    @GetMapping("/cid")
+    public int changeId( String username){
+        int id = questionService.getuserid(username);
+        System.out.println(id);
+//        questionService.changeId(id);
+        return id;
+    }
+//    获取评论
     @PostMapping("/comment")
     public ResponseEntity<String> addComment(@RequestBody CommentDto commentDto, @RequestHeader(value = "Authorization", required = false) String token) {
         try {
@@ -63,6 +92,7 @@ public class QuestionController {
             comment.setParent_id(commentDto.getParent_id());
             comment.setType(commentDto.getType());
             comment.setContent(commentDto.getContent());
+            comment.setComment_creator(commentDto.getComment_creator());
             
             // 设置receiver_name，确保不为null
             String receiverName = commentDto.getReceiver_name();
@@ -106,15 +136,15 @@ public class QuestionController {
                 }
             }
             comment.setReceiver_id(receiverId);
-            
+
             // 从token中获取用户ID，这里简化处理，实际应该从token解析用户信息
-            Long userId = 1L; // 默认用户ID，实际应从token中获取
-            if (token != null && !token.isEmpty()) {
-                // 这里应该有token解析逻辑，获取真实用户ID
-                // userId = tokenService.getUserIdFromToken(token);
-            }
+//            Long userId = 1L; // 默认用户ID，实际应从token中获取
+//            if (token != null && !token.isEmpty()) {
+//                // 这里应该有token解析逻辑，获取真实用户ID
+//                // userId = tokenService.getUserIdFromToken(token);
+//            }
             
-            comment.setComment_creator(userId);
+//            comment.setComment_creator(userId);
             
             // 设置创建和修改时间
             Long currentTime = System.currentTimeMillis();
@@ -132,19 +162,20 @@ public class QuestionController {
             return new ResponseEntity<>("评论失败: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+//    删除评论
     @DeleteMapping("/comment/{commentId}")
-    public ResponseEntity<String> deleteComment(@PathVariable("commentId") Long commentId, @RequestHeader(value = "Authorization", required = false) String token) {
+    public ResponseEntity<String> deleteComment(@PathVariable("commentId") Long commentId) {
         try {
             // 从token中获取用户ID，这里简化处理，实际应该从token解析用户信息
-            Long userId = 1L; // 默认用户ID，实际应从token中获取
-            if (token != null && !token.isEmpty()) {
-                // 这里应该有token解析逻辑，获取真实用户ID
-                // userId = tokenService.getUserIdFromToken(token);
-            }
+            //Long userId = 1L;  默认用户ID，实际应从token中获取
+//            if (token != null && !token.isEmpty()) {
+//                // 这里应该有token解析逻辑，获取真实用户ID
+//                // userId = tokenService.getUserIdFromToken(token);
+//            }
             
             // 删除评论，只有评论创建者才能删除自己的评论
-            int result = questionService.deleteComment(commentId, userId);
+            System.out.println(commentId);
+            int result = questionService.deleteComment(commentId);
             
             if (result > 0) {
                 return new ResponseEntity<>("删除评论成功", HttpStatus.OK);
