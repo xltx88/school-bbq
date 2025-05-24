@@ -135,7 +135,7 @@ export default {
       questions: [],
       total:0,
       currentPage: 1,
-      pageSize: 10,
+      pageSize: 5,
       search:'',
       sort: 'new',//控制开头选项
       hots: {},
@@ -144,19 +144,42 @@ export default {
   },
   methods: {
     handleClick(tab, event) {
+      this.currentPage = 1
       this.page(1)
     },
-    page() {
-      
+    page(pageNum) {
+      if (pageNum) {
+        this.currentPage = pageNum
+      }
       
       //包含请求头，这样登录首页直接根据token登录
       const _this = this
-      // +'&search='+this.search+'&tag='+this.tag+'&sort='+this.sort
-      this.$axios.get('/').then((res) => {
-        console.log('asd');
-        // _this.questions = res.data.data.questionDtos
-        this.questions = res.data
-        console.log(this.questions);
+      // 构建分页参数
+      const params = {
+        page: this.currentPage,
+        size: this.pageSize,
+        search: this.search,
+        tag: this.tag,
+        sort: this.sort
+      }
+      
+      // 发送请求获取分页数据
+       this.$axios.get('/', { params }).then((res) => {
+         console.log('获取数据:', res.data);
+         
+         // 处理后端返回的分页数据结构
+         if (res.data && res.data.data && res.data.data.questionDtos) {
+           _this.questions = res.data.data.questionDtos
+           _this.total = res.data.data.totalCount || 0
+           _this.currentPage = res.data.data.currentPage || 1
+         } else {
+           // 兼容旧的数据格式
+           _this.questions = res.data || []
+           _this.total = _this.questions.length
+         }
+         
+         console.log('当前页问题:', _this.questions);
+         console.log('总数:', _this.total, '当前页:', _this.currentPage);
         
         // 确保时间格式化正确处理
         for (const question of _this.questions) {
@@ -172,28 +195,32 @@ export default {
             question.gmt_create = '未知时间'
           }
         }
-        
-        // 处理分页信息
-        if(res.data && res.data.data) {
-          _this.currentPage = res.data.data.currentPage || 1
-          _this.total = (res.data.data.totalPages || 1) * _this.pageSize
-        }
+      }).catch(error => {
+        console.error('获取数据失败:', error)
+        _this.questions = []
+        _this.total = 0
       })
+      
+      // 获取热门标签
       this.$axios.get("/hottags").then((res) => {
-        _this.hots = res.data.data
-          }
-      )
+        if (res.data && res.data.data) {
+          _this.hots = res.data.data
+        } else {
+          _this.hots = res.data || {}
+        }
+      }).catch(error => {
+        console.error('获取热门标签失败:', error)
+        _this.hots = {}
+      })
     },
     hottags(tag){
       this.$router.push({path:'/',query:{tag}})
       this.$router.go(0);
     },
     sousuo(){
-      console.log(this.search);
-      this.$axios.get("/search?st="+ this.search).then(res=>{
-        console.log(res);
-        this.questions = res.data
-      })
+      console.log('执行搜索:', this.search);
+      this.currentPage = 1; // 搜索时重置到第一页
+      this.page(1); // 直接调用分页方法，后端会处理搜索
     }
   },
   created() {

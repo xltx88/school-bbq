@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.ArrayList;
 
 @CrossOrigin
 @RestController
@@ -25,29 +26,63 @@ public class HomeController {
 private QuestionMapper  questionMapper;
 @Autowired
 private UserMapper userMapper;
-    // 处理根路径 / 的 GET 请求
+    // 处理根路径 / 的 GET 请求 - 支持分页
     @GetMapping("/")
-    public List<Question> index(){
-        List<Question> list = questionMapper.getq();
-//        System.out.println(list.get(0).getTitle());
-        return list;
+    public Map<String, Object> index(@RequestParam(name="page", defaultValue = "1") Integer page,
+                                   @RequestParam(name="size", defaultValue = "5") Integer size,
+                                   @RequestParam(name="search", required = false) String search,
+                                   @RequestParam(name="tag", required = false) String tag,
+                                   @RequestParam(name="sort", required = false) String sort){
+        
+        List<Question> allQuestions = questionMapper.getq();
+        
+        // 如果有搜索条件，进行过滤
+        if (search != null && !search.trim().isEmpty()) {
+            String searchPattern = "%" + search.trim() + "%";
+            allQuestions = questionMapper.sousuo(searchPattern);
+        }
+        
+        // 计算分页
+        int total = allQuestions.size();
+        int totalPages = (int) Math.ceil((double) total / size);
+        int startIndex = (page - 1) * size;
+        int endIndex = Math.min(startIndex + size, total);
+        
+        List<Question> pageQuestions = new ArrayList<>();
+        if (startIndex < total) {
+            pageQuestions = allQuestions.subList(startIndex, endIndex);
+        }
+        
+        // 构建返回结果
+        Map<String, Object> result = new HashMap<>();
+        Map<String, Object> data = new HashMap<>();
+        data.put("questionDtos", pageQuestions);
+        data.put("totalCount", total);
+        data.put("totalPages", totalPages);
+        data.put("currentPage", page);
+        data.put("pageSize", size);
+        
+        result.put("code", 200);
+        result.put("message", "查询成功");
+        result.put("data", data);
+        
+        return result;
     }
-//    public ResultDto index(HttpServletRequest request,
-//                           @RequestParam(name="page", defaultValue = "1") Integer page,
-//                           @RequestParam(name="size", defaultValue = "5") Integer size,
-//                           @RequestParam(name="search",required = false) String search,
-//                           @RequestParam(name = "tag",required = false) String tag,
-//                           @RequestParam(name = "sort",required = false) String sort){
-//        PageDto pageDto = questionService.GetQuestionList(search,tag,sort,page,size);
-//        return ResultDto.succ("首页查询成功",pageDto);
-//    }
 
     // 处理 /hottags 的 GET 请求
     @GetMapping("/hottags")
-    public Map<String, String> getHotTags() {
-        Map<String, String> response = new HashMap<>();
-        System.out.println(response);
-        response.put("message", "Here are the hot tags!");
+    public Map<String, Object> getHotTags() {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            List<String> hotTags = questionMapper.getHotTags();
+            response.put("code", 200);
+            response.put("message", "success");
+            response.put("data", hotTags);
+        } catch (Exception e) {
+            response.put("code", 500);
+            response.put("message", "获取热门标签失败");
+            response.put("data", new ArrayList<>());
+        }
         return response;
     }
 

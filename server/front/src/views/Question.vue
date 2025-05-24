@@ -95,7 +95,7 @@
 
           <!--右边分布-->
           <el-col :xs="24" :sm="24" :md="8" :lg="8" :xl="8">
-            <el-card class="box-card" shadow="hover">
+            <!-- <el-card class="box-card" shadow="hover">
               <div class="card-header">
                 <span>相关问题</span>
               </div>
@@ -118,6 +118,24 @@
                 </div>
               </div>
 
+            </el-card> -->
+            <el-card class="box-card" shadow="never">
+              <div class="card-header">
+                <span>热门话题</span>
+              </div>
+              <!--标签内容-->
+              <div class="tag-group">
+                <el-button
+                    v-for="hotTag in hots"
+                    :key="hotTag"
+                    style="margin:5px"
+                    type="primary"
+                    plain
+                    size="small"
+                    @click="hottags(hotTag)">
+                  {{ hotTag }}
+                </el-button>
+              </div>
             </el-card>
             <el-card class="box-card" shadow="never">
               <div class="card-header">
@@ -191,6 +209,7 @@ export default {
       },
       comments: [],
       relatedQuestions: {},
+      hots: [],
       ownQuestion: false,
       btnShow: false,
       index: '0',//当前输入框对应的一级评论
@@ -304,6 +323,18 @@ export default {
       this.myName = userInfo.name
       this.myId = userInfo.id
     }
+    
+    // 获取热门标签
+    this.$axios.get("/hottags").then((res) => {
+      if (res.data && res.data.data) {
+        _this.hots = res.data.data
+      } else {
+        _this.hots = res.data || []
+      }
+    }).catch(error => {
+      console.error('获取热门标签失败:', error)
+      _this.hots = []
+    })
   },
   // watch: {
   //   '$route.params.questionId':function(val, old) {
@@ -314,6 +345,10 @@ export default {
   // },
   // directives: {clickoutside},
   methods: {
+    hottags(tag){
+      this.$router.push({path:'/',query:{tag}})
+      this.$router.go(0);
+    },
     inputFocus() {
       var replyInput = document.getElementById('replyInput');
       replyInput.style.padding = "8px 8px"

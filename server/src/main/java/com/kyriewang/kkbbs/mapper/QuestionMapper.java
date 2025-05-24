@@ -77,4 +77,8 @@ public interface QuestionMapper {
 //    搜索
     @Select("select * from question where title like #{st} ")
     List<Question> sousuo(String st);
+    
+//    获取热门标签（前5个）
+    @Select("SELECT tag, COUNT(*) as tag_count FROM question WHERE tag IS NOT NULL AND tag != '' GROUP BY tag ORDER BY tag_count DESC LIMIT 5")
+    List<String> getHotTags();
 }
